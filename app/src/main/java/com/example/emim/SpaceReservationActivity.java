@@ -5,80 +5,91 @@ import android.widget.*;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class SpaceReservationActivity extends AppCompatActivity{
+    private ViewFlipper formSteps;
+    private ImageView stepIcon1, stepIcon2, stepIcon3;
+    private Button btnAnterior, btnProximo;
+    private int currentStep = 0;
+    private final int TOTAL_STEPS = 3;
 
-        private EditText inputNome, inputFrequencia, inputEndereco, inputLatitude, inputLongitude,
-                inputDescricao, inputDescricaoDocumento, inputFormatoDocumento;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.space_reservation_layout);
 
-        private Spinner spinnerProvincia, spinnerCidade, spinnerBairro, spinnerTipoDocumento;
+        formSteps = findViewById(R.id.formSteps);
+        stepIcon1 = findViewById(R.id.stepIcon1);
+        stepIcon2 = findViewById(R.id.stepIcon2);
+        stepIcon3 = findViewById(R.id.stepIcon3);
 
-        private Button btnSave, btnCancel;
+        btnAnterior = findViewById(R.id.btnAnterior);
+        btnProximo = findViewById(R.id.btnProximo);
 
-        @Override
-        protected void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            setContentView(R.layout.space_reservation_layout);
+        updateStepIcons();
 
-            // Bind views
-            inputNome = findViewById(R.id.inputNome);
-            inputFrequencia = findViewById(R.id.inputFrequencia);
-            inputEndereco = findViewById(R.id.inputEndereco);
-            inputLatitude = findViewById(R.id.inputLatitude);
-            inputLongitude = findViewById(R.id.inputLongitude);
-            inputDescricao = findViewById(R.id.inputDescricao);
-            inputDescricaoDocumento = findViewById(R.id.inputDescricaoDocumento);
-            inputFormatoDocumento = findViewById(R.id.inputFormatoDocumento);
-
-            spinnerProvincia = findViewById(R.id.spinnerProvincia);
-            spinnerCidade = findViewById(R.id.spinnerCidade);
-            spinnerBairro = findViewById(R.id.spinnerBairro);
-            spinnerTipoDocumento = findViewById(R.id.spinnerTipoDocumento);
-
-            btnSave = findViewById(R.id.btnSave);
-            btnCancel = findViewById(R.id.btnCancel);
-
-            // Setup Spinners with example data
-            setupSpinners();
-
-            // Button handlers
-            btnSave.setOnClickListener(v -> handleSubmit());
-            btnCancel.setOnClickListener(v -> finish());
-        }
-
-        private void setupSpinners() {
-            String[] provincias = {"Maputo", "Gaza", "Inhambane"};
-            String[] cidades = {"Cidade 1", "Cidade 2"};
-            String[] bairros = {"Bairro 1", "Bairro 2"};
-            String[] tiposDocumento = {"Licença", "Contrato", "Outro"};
-
-            setSpinnerData(spinnerProvincia, provincias);
-            setSpinnerData(spinnerCidade, cidades);
-            setSpinnerData(spinnerBairro, bairros);
-            setSpinnerData(spinnerTipoDocumento, tiposDocumento);
-        }
-
-        private void setSpinnerData(Spinner spinner, String[] data) {
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
-                    android.R.layout.simple_spinner_item, data);
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            spinner.setAdapter(adapter);
-        }
-
-        private void handleSubmit() {
-            String nome = inputNome.getText().toString().trim();
-            String frequencia = inputFrequencia.getText().toString().trim();
-            String endereco = inputEndereco.getText().toString().trim();
-            String latitude = inputLatitude.getText().toString().trim();
-            String longitude = inputLongitude.getText().toString().trim();
-
-            if (nome.isEmpty() || frequencia.isEmpty() || endereco.isEmpty()
-                    || latitude.isEmpty() || longitude.isEmpty()) {
-                Toast.makeText(this, "Preencha todos os campos obrigatórios!", Toast.LENGTH_SHORT).show();
-                return;
+        btnAnterior.setOnClickListener(view -> {
+            if (currentStep > 0) {
+                currentStep--;
+                formSteps.setInAnimation(this, android.R.anim.slide_in_left);
+                formSteps.setOutAnimation(this, android.R.anim.slide_out_right);
+                formSteps.showPrevious();
+                updateStepIcons();
             }
+        });
 
-            // TODO: Submit data to backend or save locally
+        btnProximo.setOnClickListener(view -> {
+            if (currentStep < TOTAL_STEPS - 1) {
+                currentStep++;
+                formSteps.setInAnimation(this, android.R.anim.slide_in_left);
+                formSteps.setOutAnimation(this, android.R.anim.slide_out_right);
+                formSteps.showNext();
+                updateStepIcons();
+            } else {
+                // Última etapa - submit
+                enviarFormulario();
+            }
+        });
+    }
 
-            Toast.makeText(this, "Reserva salva com sucesso!", Toast.LENGTH_LONG).show();
-            finish(); // Close activity
+    private void updateStepIcons() {
+        // Resetar tudo para cinza
+        stepIcon1.setBackgroundResource(R.drawable.circle_gray);
+        stepIcon2.setBackgroundResource(R.drawable.circle_gray);
+        stepIcon3.setBackgroundResource(R.drawable.circle_gray);
+
+        stepIcon1.setImageResource(R.drawable.ic_baseline_check_24);
+        stepIcon2.setImageResource(R.drawable.ic_baseline_check_24);
+        stepIcon3.setImageResource(R.drawable.ic_baseline_done_all_24); // Ou ic_check se for concluído
+
+        // Atualizar status com base na etapa atual
+        switch (currentStep) {
+            case 0:
+                stepIcon1.setBackgroundResource(R.drawable.circle_green);
+                stepIcon1.setImageResource(R.drawable.ic_baseline_check_24);
+                break;
+            case 1:
+                stepIcon1.setBackgroundResource(R.drawable.circle_green);
+                stepIcon2.setBackgroundResource(R.drawable.circle_green);
+                break;
+            case 2:
+                stepIcon1.setBackgroundResource(R.drawable.circle_green);
+                stepIcon2.setBackgroundResource(R.drawable.circle_green);
+                stepIcon3.setBackgroundResource(R.drawable.circle_green);
+                stepIcon3.setImageResource(R.drawable.ic_baseline_check_24);
+                break;
         }
+
+        // Atualizar texto do botão "Próximo" para "Finalizar" na última etapa
+        btnProximo.setText(currentStep == TOTAL_STEPS - 1 ? "Finalizar" : "Próximo");
+
+        // Esconde o botão "Anterior" na primeira etapa
+        btnAnterior.setVisibility(currentStep == 0 ? View.GONE : View.VISIBLE);
+    }
+
+    private void enviarFormulario() {
+        // Lógica de envio dos dados aqui
+        // Pode incluir validação, envio para API etc.
+        // Por enquanto, apenas uma simulação:
+        System.out.println("Formulário enviado com sucesso!");
+        finish(); // fecha a activity
+    }
 }

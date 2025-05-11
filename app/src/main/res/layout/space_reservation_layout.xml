@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Title -->
+    <!-- Título -->
     <TextView
         android:id="@+id/formTitle"
         android:layout_width="wrap_content"
@@ -15,178 +16,205 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- Scrollable Form -->
-    <ScrollView
-        android:id="@+id/scrollView"
+    <!-- Indicador de passos -->
+    <LinearLayout
+        android:id="@+id/stepIndicator"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@id/formTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Passo 1 -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/stepIcon1"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="@drawable/circle_green"
+                android:padding="8dp"
+                android:src="@drawable/ic_baseline_check_24" />
+
+            <TextView
+                android:text="Detalhes"
+                android:layout_width="wrap_content"
+                android:layout_height="20dp"
+                android:textSize="12sp"
+                android:textColor="#000"
+                android:layout_marginTop="4dp"/>
+        </LinearLayout>
+
+        <!-- Passo 2 -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/stepIcon2"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="@drawable/circle_gray"
+                android:padding="8dp"
+                android:src="@drawable/ic_baseline_check_24" />
+
+            <TextView
+                android:text="Endereço"
+                android:layout_width="wrap_content"
+                android:layout_height="20dp"
+                android:textSize="12sp"
+                android:textColor="#000"
+                android:layout_marginTop="4dp"/>
+        </LinearLayout>
+
+        <!-- Passo 3 -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/stepIcon3"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="@drawable/circle_gray"
+                android:padding="8dp"
+                android:src="@drawable/ic_baseline_check_24" />
+
+            <TextView
+                android:text="Documentos"
+                android:layout_width="wrap_content"
+                android:layout_height="20dp"
+                android:textSize="12sp"
+                android:textColor="#000"
+                android:layout_marginTop="4dp"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Conteúdo do formulário em etapas -->
+    <ViewFlipper
+        android:id="@+id/formSteps"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:fillViewport="true"
-        android:layout_marginBottom="70dp"
-        app:layout_constraintTop_toBottomOf="@id/formTitle"
+        android:layout_margin="16dp"
+        app:layout_constraintTop_toBottomOf="@id/stepIndicator"
         app:layout_constraintBottom_toTopOf="@id/buttonContainer"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
+        <!-- Etapa 1 - Detalhes -->
         <LinearLayout
             android:orientation="vertical"
-            android:padding="16dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
+            <!-- Nome da publicidade -->
             <!-- Nome da publicidade -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
                 app:cardElevation="4dp"
-                app:cardCornerRadius="8dp">
+                app:cardCornerRadius="8dp"
+                app:cardBackgroundColor="#efefef"
+                android:clipToPadding="true"
+                android:clipChildren="true">
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_margin="8dp"
-                    app:boxBackgroundMode="filled"
-                    app:boxBackgroundColor="#D3D3D3">
+                    android:background="@android:color/transparent"
+                    android:padding="8dp">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/inputNome"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="Nome da publicidade"
-
+                        android:textStyle="bold"
+                        android:textSize="14dp"
+                        android:background="@android:color/transparent"
                         android:inputType="textPersonName" />
                 </com.google.android.material.textfield.TextInputLayout>
             </androidx.cardview.widget.CardView>
 
+
+
             <!-- Frequência de pagamento -->
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                app:cardElevation="4dp"
-                app:cardCornerRadius="8dp">
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="8dp"
-                    app:boxBackgroundMode="filled"
-                    app:boxBackgroundColor="#D3D3D3">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/inputFrequencia"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="Frequência de pagamento"
-                        android:textStyle="bold"
-                        android:inputType="text" />
-                </com.google.android.material.textfield.TextInputLayout>
-            </androidx.cardview.widget.CardView>
-
-            <!-- Província -->
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Província" />
+            <TextView android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:text="Frequência de pagamento" />
             <Spinner
-                android:id="@+id/spinnerProvincia"
+                android:id="@+id/spinnerFrequency"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
                 android:paddingVertical="12dp" />
+        </LinearLayout>
 
-            <!-- Cidade -->
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Cidade" />
-            <Spinner
-                android:id="@+id/spinnerCidade"
+        <!-- Etapa 2 - Endereço -->
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:id="@+id/inputEndereco"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:paddingVertical="12dp" />
+                android:hint="Endereço" />
 
-            <!-- Bairro -->
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Bairro" />
-            <Spinner
-                android:id="@+id/spinnerBairro"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:paddingVertical="12dp" />
-
-            <!-- Endereço -->
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                app:cardElevation="4dp"
-                app:cardCornerRadius="8dp">
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="8dp"
-                    app:boxBackgroundMode="filled"
-                    app:boxBackgroundColor="#D3D3D3">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/inputEndereco"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="Endereço"
-                        android:textStyle="bold"
-                        android:inputType="textPostalAddress" />
-                </com.google.android.material.textfield.TextInputLayout>
-            </androidx.cardview.widget.CardView>
-
-            <!-- Coordenadas -->
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Coordenadas" />
             <EditText
                 android:id="@+id/inputLatitude"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Latitude"
-                android:inputType="numberDecimal"
-                android:layout_marginBottom="8dp" />
+                android:hint="Latitude" />
+
             <EditText
                 android:id="@+id/inputLongitude"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Longitude"
-                android:inputType="numberDecimal"
-                android:layout_marginBottom="12dp" />
+                android:hint="Longitude" />
+        </LinearLayout>
 
-            <!-- Descrição -->
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Descrição" />
-            <EditText
-                android:id="@+id/inputDescricao"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minLines="4"
-                android:gravity="top"
-                android:inputType="textMultiLine"
-                android:layout_marginBottom="12dp" />
+        <!-- Etapa 3 - Documentos -->
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-            <!-- Documentos -->
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Tipo de documento" />
             <Spinner
                 android:id="@+id/spinnerTipoDocumento"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp" />
+                android:layout_height="wrap_content" />
+
             <EditText
                 android:id="@+id/inputDescricaoDocumento"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Descrição do documento"
-                android:layout_marginBottom="12dp" />
+                android:hint="Descrição do documento" />
+
             <EditText
                 android:id="@+id/inputFormatoDocumento"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Formato (ex: PDF, JPG)"
-                android:layout_marginBottom="12dp" />
-
+                android:hint="Formato (ex: PDF, JPG)" />
         </LinearLayout>
-    </ScrollView>
+    </ViewFlipper>
 
-    <!-- Buttons -->
+    <!-- Botões -->
     <LinearLayout
         android:id="@+id/buttonContainer"
         android:layout_width="0dp"
@@ -199,16 +227,16 @@
         app:layout_constraintEnd_toEndOf="parent">
 
         <Button
-            android:id="@+id/btnCancel"
+            android:id="@+id/btnAnterior"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Cancelar" />
+            android:text="Anterior" />
 
         <Button
-            android:id="@+id/btnSave"
+            android:id="@+id/btnProximo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Salvar"
+            android:text="Próximo"
             android:layout_marginStart="16dp" />
     </LinearLayout>
 
