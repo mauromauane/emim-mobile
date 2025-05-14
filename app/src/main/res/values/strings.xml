@@ -16,6 +16,7 @@
     <string name="cidade_prompt">Selecione a cidade</string>
     <string name="bairro_prompt">Selecione o bairro</string>
     <string name="documento_prompt">Selecione o tipo de documento</string>
+    <string name="login_with_apple">Login with apple</string>
     <string name="campaign">&#xe99a;</string>
 
 </resources>

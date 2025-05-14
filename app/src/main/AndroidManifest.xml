@@ -10,18 +10,35 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Emim">
         <activity
-            android:name=".MainActivity"
+            android:name=".SpaceReservationActivity"
             android:exported="true"
-            android:label="@string/app_name">
+            android:theme="@style/Theme.Emim.DarkActionBar"
+            android:label="Reserva de Espaço" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity"/>
         </activity>
-        <activity android:name=".SpaceReservationActivity">
+        <activity android:name=".LandingActivity">
             <!-- Optional: Add launch mode, theme, or intent-filter here -->
         </activity>
-    </application>
+        <activity android:name=".MainActivity"
+            android:theme="@style/Theme.EmimLogin">
+        </activity>
+        <activity android:name=".LoginActivity"
+            android:theme="@style/Theme.EmimLogin">
+        </activity>
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyAMRW9dUZnP7IP8LDjVU7swa8-ixrrHa8I"/>
 
+    </application>
+    <!-- Permissão para acesso à Internet e localização -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
 </manifest>
