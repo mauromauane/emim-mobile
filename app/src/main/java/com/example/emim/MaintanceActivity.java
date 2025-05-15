@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
@@ -19,36 +20,57 @@ import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.emim.controller.Coordinate;
+import com.example.emim.controller.CoordinatesAdapter;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.gson.Gson;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 
-public class SpaceReservationActivity extends AppCompatActivity implements OnMapReadyCallback {
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+
+public class MaintanceActivity extends AppCompatActivity implements OnMapReadyCallback {
     private ViewFlipper formSteps;
     private int stepIndex = 0;
 
     private Button btnAnterior, btnProximo;
 
     // Step 1 fields
-    private TextInputEditText inputEndereco, inputLatitude, inputLongitude;
-    private Spinner spinnerFrequency;
+    private TextInputEditText inputEndereco;
+    private TextInputLayout  inputLatitude, inputLongitude;
+    private Spinner spinnerExecutor;
 
     private TextInputLayout inputNome;
 
@@ -83,12 +105,23 @@ public class SpaceReservationActivity extends AppCompatActivity implements OnMap
     private static final int REQUEST_LOCATION_PERM = 1002;
 
     private FusedLocationProviderClient fusedLocationClient;
+    private RecyclerView rvCoords;
+    private CoordinatesAdapter adapter;
+
+    private final List<Coordinate> coordinateList = new ArrayList<>();
+    private Polyline currentPolyline;
+    private Marker startMarker, endMarker;
+    private static final String ROADS_API_URL =
+            "https://roads.googleapis.com/v1/snapToRoads?interpolate=true&key=AIzaSyAMRW9dUZnP7IP8LDjVU7swa8-ixrrHa8I";
+
+    private final OkHttpClient httpClient = new OkHttpClient();
+    private final Gson gson = new Gson();
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.space_reservation_layout);
+        setContentView(R.layout.maintanance_layout);
 
         stepIcon1 = findViewById(R.id.stepIcon1);
         stepIcon2 = findViewById(R.id.stepIcon2);
@@ -112,13 +145,13 @@ public class SpaceReservationActivity extends AppCompatActivity implements OnMap
         inputEndereco = findViewById(R.id.inputEndereco);
         inputLatitude = findViewById(R.id.inputLatitude);
         inputLongitude = findViewById(R.id.inputLongitude);
-        spinnerFrequency = findViewById(R.id.spinnerFrequency);
+        spinnerExecutor = findViewById(R.id.spinnerExecutor);
         ArrayAdapter<String> adapterFreq = new ArrayAdapter<>(
                 this, android.R.layout.simple_spinner_item,
-                new String[]{"Mensal", "Trimestral", "Anual"}
+                new String[]{"Próprio", "Emim", "Empreteiros"}
         );
         adapterFreq.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerFrequency.setAdapter(adapterFreq);
+        spinnerExecutor.setAdapter(adapterFreq);
 
         // Step 2 → Documentos
         spinnerTipoDocumento = findViewById(R.id.spinnerTipoDocumento);
@@ -261,26 +294,50 @@ public class SpaceReservationActivity extends AppCompatActivity implements OnMap
             fetchAndFillLocation();
         }
 
+
+        Button btnAdd = findViewById(R.id.btnAddCoordinate);
+        rvCoords      = findViewById(R.id.rvCoordinates);
+
+        adapter = new CoordinatesAdapter(new ArrayList<>(), pos -> adapter.remove(pos));
+        rvCoords.setLayoutManager(new LinearLayoutManager(this));
+        rvCoords.setAdapter(adapter);
+
+        // clique no botão: adiciona à lista
+        btnAdd.setOnClickListener(v -> {
+            String lat = inputLatitude.getEditText().getText().toString().trim();
+            String lon = inputLongitude.getEditText().getText().toString().trim();
+            if (lat.isEmpty() || lon.isEmpty()) {
+                Toast.makeText(this, "Preencha latitude e longitude", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            Coordinate coord = new Coordinate(lat, lon);
+            adapter.add(coord);                // show in RecyclerView
+            coordinateList.add(coord);
+            inputLatitude.getEditText().setText("");
+            inputLongitude.getEditText().setText("");
+            drawPolyline();
+        });
+
     }
 
 
     private void preencherConfirmacao() {
         labelNome.setText("Nome: " + inputNome.getEditText().getText());
         labelEndereco.setText("Endereço: " + inputEndereco.getText());
-        labelFrequencia.setText("Frequência: " + spinnerFrequency.getSelectedItem());
+        labelFrequencia.setText("Executor: " + spinnerExecutor.getSelectedItem());
         labelDocTipo.setText("Tipo de Documento: " + spinnerTipoDocumento.getSelectedItem());
 //        labelDocDescricao.setText("Descrição: " + inputDescricaoDocumento.getEditText().getText());
 
         // Center the map on the user’s coordinates (or show an error)
-        updateMap();
+       // updateMap();
     }
 
     private void updateMap() {
         if (googleMap != null) {
             googleMap.clear();
             try {
-                double lat = Double.parseDouble(inputLatitude.getText().toString()),
-                        lng = Double.parseDouble(inputLongitude.getText().toString());
+                double lat = Double.parseDouble(inputLatitude.getEditText().getText().toString()),
+                        lng = Double.parseDouble(inputLongitude.getEditText().getText().toString());
                 LatLng location = new LatLng(lat, lng);
                 googleMap.addMarker(new MarkerOptions().position(location).title("Localização"));
                 googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 15f));
@@ -293,6 +350,7 @@ public class SpaceReservationActivity extends AppCompatActivity implements OnMap
     @Override
     public void onMapReady(GoogleMap map) {
         googleMap = map;
+        drawPolyline();
     }
 
     @Override
@@ -421,8 +479,8 @@ public class SpaceReservationActivity extends AppCompatActivity implements OnMap
                     if (location != null) {
                         double lat = location.getLatitude();
                         double lng = location.getLongitude();
-                        inputLatitude.setText(String.format(Locale.getDefault(), "%.6f", lat));
-                        inputLongitude.setText(String.format(Locale.getDefault(), "%.6f", lng));
+                       inputLatitude.getEditText().setText(String.format(Locale.getDefault(), "%.6f", lat));
+                        inputLongitude.getEditText().setText(String.format(Locale.getDefault(), "%.6f", lng));
                     } else {
                         Toast.makeText(this, "Não foi possível obter localização", Toast.LENGTH_SHORT).show();
                     }
@@ -431,5 +489,127 @@ public class SpaceReservationActivity extends AppCompatActivity implements OnMap
                     Toast.makeText(this, "Erro ao obter localização: " + e.getMessage(),
                             Toast.LENGTH_SHORT).show();
                 });
+    }
+
+    private void drawPolyline() {
+        if (googleMap == null || coordinateList.isEmpty()) return;
+
+        // Remove any existing polyline and markers
+        if (currentPolyline != null) {
+            currentPolyline.remove();
+        }
+        if (startMarker != null) {
+            startMarker.remove();
+        }
+        if (endMarker != null) {
+            endMarker.remove();
+        }
+
+        // Build the “path” parameter for the Roads API
+        StringBuilder pathBuilder = new StringBuilder();
+        for (Coordinate c : coordinateList) {
+            if (pathBuilder.length() > 0) {
+                pathBuilder.append("|");
+            }
+            pathBuilder
+                    .append(c.latitude)
+                    .append(",")
+                    .append(c.longitude);
+        }
+
+        String encodedPath;
+        try {
+            encodedPath = URLEncoder.encode(pathBuilder.toString(), "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            encodedPath = pathBuilder.toString();  // fallback, though unlikely
+        }
+
+        // Prepare the Roads API request (interpolate=true smooths between points)
+        String url = ROADS_API_URL + "&path=" + encodedPath;
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+        httpClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                runOnUiThread(() ->
+                        Toast.makeText(MaintanceActivity.this,
+                                "Erro Roads API: " + e.getMessage(),
+                                Toast.LENGTH_SHORT).show()
+                );
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (!response.isSuccessful()) {
+                    onFailure(call, new IOException("HTTP " + response.code()));
+                    return;
+                }
+
+                // Parse the JSON into our model
+                String json = response.body().string();
+                SnapToRoadsResponse snapResp = gson.fromJson(json, SnapToRoadsResponse.class);
+                List<LatLng> snappedPoints = new ArrayList<>();
+                for (SnapToRoadsResponse.SnappedPoint sp : snapResp.snappedPoints) {
+                    snappedPoints.add(new LatLng(
+                            sp.location.latitude,
+                            sp.location.longitude
+                    ));
+                }
+
+                runOnUiThread(() -> {
+                    // 1) Draw the polyline
+                    currentPolyline = googleMap.addPolyline(new PolylineOptions()
+                            .addAll(snappedPoints)
+                            .width(6)
+                            .color(Color.BLUE)
+                    );
+
+                    // 2) Place start & end markers
+                    LatLng start = snappedPoints.get(0);
+                    LatLng end   = snappedPoints.get(snappedPoints.size() - 1);
+                    startMarker = googleMap.addMarker(new MarkerOptions()
+                            .position(start)
+                            .title("Início")
+                            .icon(BitmapDescriptorFactory.defaultMarker(
+                                    BitmapDescriptorFactory.HUE_GREEN)));
+                    endMarker = googleMap.addMarker(new MarkerOptions()
+                            .position(end)
+                            .title("Fim")
+                            .icon(BitmapDescriptorFactory.defaultMarker(
+                                    BitmapDescriptorFactory.HUE_RED)));
+
+                    // 3) Build bounds & animate camera
+                    LatLngBounds.Builder boundsBuilder = new LatLngBounds.Builder();
+                    for (LatLng pt : snappedPoints) {
+                        boundsBuilder.include(pt);
+                    }
+                    LatLngBounds bounds = boundsBuilder.build();
+
+                    googleMap.setOnMapLoadedCallback(() -> {
+                        googleMap.animateCamera(
+                                CameraUpdateFactory.newLatLngBounds(bounds, /* padding */100)
+                        );
+                    });
+                });
+            }
+        });
+    }
+
+
+}
+
+
+class SnapToRoadsResponse {
+    List<SnappedPoint> snappedPoints;
+
+    static class SnappedPoint {
+        Location location;
+        // placeId, originalIndex if you need them
+    }
+    static class Location {
+        double latitude;
+        double longitude;
     }
 }

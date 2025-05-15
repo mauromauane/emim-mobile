@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
                     startActivity(new Intent(MainActivity.this, SpaceReservationActivity.class));
                     break;
                 case "Manutenção de vias":
-                    Toast.makeText(this, "Abrir manutenção de vias", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(MainActivity.this, MaintanceActivity.class));
                     break;
                 default:
                     Toast.makeText(this, "Clicado: " + item.getTitle(), Toast.LENGTH_SHORT).show();

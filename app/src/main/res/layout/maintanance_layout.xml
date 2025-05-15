@@ -58,6 +58,29 @@
                 android:padding="8dp"
                 android:src="@drawable/ic_baseline_check_24" />
             <TextView
+                android:text="Localização"
+                android:layout_width="wrap_content"
+                android:layout_height="20dp"
+                android:textSize="12sp"
+                android:textColor="#000"
+                android:layout_marginTop="4dp"/>
+        </LinearLayout>
+
+        <!-- Passo 2: Documentos -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical">
+            <ImageView
+                android:id="@+id/stepIcon3"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="@drawable/circle_gray"
+                android:padding="8dp"
+                android:src="@drawable/ic_baseline_check_24" />
+            <TextView
                 android:text="Documentos"
                 android:layout_width="wrap_content"
                 android:layout_height="20dp"
@@ -74,7 +97,7 @@
             android:gravity="center"
             android:orientation="vertical">
             <ImageView
-                android:id="@+id/stepIcon3"
+                android:id="@+id/stepIcon4"
                 android:layout_width="36dp"
                 android:layout_height="36dp"
                 android:background="@drawable/circle_gray"
@@ -97,7 +120,7 @@
             android:gravity="center"
             android:orientation="vertical">
             <ImageView
-                android:id="@+id/stepIcon4"
+                android:id="@+id/stepIcon5"
                 android:layout_width="36dp"
                 android:layout_height="36dp"
                 android:background="@drawable/circle_gray"
@@ -163,7 +186,7 @@
                 android:id="@+id/inputNome"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
-                android:hint="Nome do outdoor"
+                android:hint="Local de manutenção"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
                 app:boxBackgroundMode="outline"
                 app:boxStrokeColor="@color/primary_500"
@@ -172,6 +195,25 @@
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etLoginEmail"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:inputType="text"
+                    android:background="@null"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/inputReason"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:hint="Objectivo da manutenção"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                app:boxBackgroundMode="outline"
+                app:boxStrokeColor="@color/primary_500"
+                app:boxStrokeWidth="1dp"
+                app:boxStrokeWidthFocused="2dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etInputReason"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:inputType="text"
@@ -245,9 +287,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:textStyle="bold"
-                android:text="Frequência de pagamento" />
+                android:text="Executor da manutenção" />
             <Spinner
-                android:id="@+id/spinnerFrequency"
+                android:id="@+id/spinnerExecutor"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
@@ -272,7 +314,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Endereços"
+                    android:text="Informação adicional"
                     android:textColor="@color/gray"
                     android:layout_marginHorizontal="8dp"/>
 
@@ -286,56 +328,68 @@
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilEndereco"
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:hint="Localização"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
-                app:boxBackgroundMode="outline"
-                app:boxStrokeColor="@color/primary_500"
-                app:boxStrokeWidth="1dp"
-                app:boxStrokeWidthFocused="2dp"
-                >
+                android:layout_height="wrap_content"
+            android:hint="Descrição da actividade"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+            app:boxBackgroundMode="outline"
+            app:boxStrokeColor="@color/primary_500"
+            app:boxStrokeWidth="1dp"
+            app:boxStrokeWidthFocused="2dp">
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/inputEndereco"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:inputType="textPostalAddress"
-                    android:background="@null"
-                    android:paddingTop="4dp"
-                    android:paddingBottom="4dp"/>
-            </com.google.android.material.textfield.TextInputLayout>
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/inputEndereco"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+            android:inputType="textMultiLine|textCapSentences"
+            android:gravity="top|start"
+            android:minLines="4"
+            android:maxLines="6"
+            android:scrollbars="vertical"
+            android:background="@null"/>
+        </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Latitude -->
+
+    </LinearLayout>
+
+        <!-- Localização -->
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="16dp">
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="1"
+                    android:background="@color/divider"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Informação básica"
+                    android:textColor="@color/gray"
+                    android:layout_marginHorizontal="8dp"/>
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="1"
+                    android:background="@color/divider"/>
+            </LinearLayout>
+            <!-- Username (Utilizador) -->
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tilLatitude"
+                android:id="@+id/inputLatitude"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:hint="Latitude"
-                android:layout_marginTop="8dp"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
-                app:boxBackgroundMode="outline"
-                app:boxStrokeColor="@color/primary_500"
-                app:boxStrokeWidth="1dp"
-                app:boxStrokeWidthFocused="2dp"
-                >
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/inputLatitude"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:inputType="text"
-                    android:background="@null"
-                    android:paddingTop="4dp"
-                    android:paddingBottom="4dp"/>
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <!-- Longitude -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tilLongitude"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:hint="Longitude"
-                android:layout_marginTop="8dp"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
                 app:boxBackgroundMode="outline"
                 app:boxStrokeColor="@color/primary_500"
@@ -343,19 +397,51 @@
                 app:boxStrokeWidthFocused="2dp">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/inputLongitude"
+                    android:id="@+id/etLoginEmail1"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:inputType="text"
-                    android:background="@null"
-                    android:paddingTop="4dp"
-                    android:paddingBottom="4dp"/>
+                    android:background="@null"/>
             </com.google.android.material.textfield.TextInputLayout>
 
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/inputLongitude"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:hint="Longitude"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                app:boxBackgroundMode="outline"
+                app:boxStrokeColor="@color/primary_500"
+                app:boxStrokeWidth="1dp"
+                app:boxStrokeWidthFocused="2dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etInputReason1"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:inputType="text"
+                    android:background="@null"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnAddCoordinate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Adicionar Coordenada"
+                android:layout_marginTop="8dp"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvCoordinates"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_marginTop="8dp"/>
 
 
         </LinearLayout>
 
+
+        <!-- documentos -->
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"

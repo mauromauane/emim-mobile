@@ -4,8 +4,15 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="app/src/main/res/drawable-v24/status_red_box.xml" value="0.4354166666666667" />
+        <entry key="app/src/main/res/drawable/circle_gray.xml" value="0.378125" />
+        <entry key="app/src/main/res/drawable/circle_green.xml" value="0.378125" />
         <entry key="app/src/main/res/drawable/ic_apple.xml" value="0.3277777777777778" />
         <entry key="app/src/main/res/drawable/ic_baseline_add_location_24.xml" value="0.4354166666666667" />
+        <entry key="app/src/main/res/drawable/ic_baseline_alt_route_24.xml" value="0.378125" />
+        <entry key="app/src/main/res/drawable/ic_baseline_calendar_month_24.xml" value="0.378125" />
+        <entry key="app/src/main/res/drawable/ic_baseline_check_24.xml" value="0.378125" />
+        <entry key="app/src/main/res/drawable/ic_baseline_directions_car_24.xml" value="0.378125" />
+        <entry key="app/src/main/res/drawable/ic_baseline_done_all_24.xml" value="0.378125" />
         <entry key="app/src/main/res/drawable/ic_baseline_person_pin_24.xml" value="0.4354166666666667" />
         <entry key="app/src/main/res/drawable/ic_facebook.xml" value="0.4171875" />
         <entry key="app/src/main/res/drawable/ic_google.xml" value="0.4107692307692308" />
@@ -19,9 +26,11 @@
         <entry key="app/src/main/res/layout/fragment_home_old.xml" value="0.4192708333333333" />
         <entry key="app/src/main/res/layout/fragment_notifications.xml" value="0.4192708333333333" />
         <entry key="app/src/main/res/layout/item_card.xml" value="0.4192708333333333" />
+        <entry key="app/src/main/res/layout/item_coordinate.xml" value="0.4015625" />
         <entry key="app/src/main/res/layout/item_dashboard.xml" value="0.5109375" />
         <entry key="app/src/main/res/layout/landing.xml" value="0.3927083333333333" />
-        <entry key="app/src/main/res/layout/space_reservation_layout.xml" value="0.4192708333333333" />
+        <entry key="app/src/main/res/layout/maintanance_layout.xml" value="0.3619791666666667" />
+        <entry key="app/src/main/res/layout/space_reservation_layout.xml" value="0.1" />
       </map>
     </option>
   </component>
