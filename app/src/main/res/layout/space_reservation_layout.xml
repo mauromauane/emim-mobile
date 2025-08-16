@@ -573,20 +573,81 @@
                     android:gravity="center"
                     android:layout_marginBottom="16dp">
 
-                    <TextView
-                        android:id="@+id/tvTaxaLabel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Taxa a pagar:"
-                        android:textSize="14sp"/>
 
-                    <TextView
-                        android:id="@+id/tvTaxaAmount"
-                        android:layout_width="wrap_content"
+                    <TableLayout
+                        xmlns:android="http://schemas.android.com/apk/res/android"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="MZN 0.00"
-                        android:textSize="14sp"
-                        android:textStyle="bold"/>
+                        android:stretchColumns="1"
+                        android:layout_marginBottom="1dp">
+
+                        <!-- Valor a pagar -->
+                        <TableRow
+                            android:paddingVertical="4dp">
+
+                            <TextView
+                                android:id="@+id/tvTaxaLabel"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Valor a pagar:"
+                                android:textSize="14sp"/>
+
+                            <TextView
+                                android:id="@+id/tvTaxaAmount"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="16dp"
+                                android:text="MZN 0.00"
+                                android:textSize="14sp"
+                                android:textStyle="bold"/>
+                        </TableRow>
+
+                        <!-- IVA -->
+                        <TableRow
+                            android:paddingVertical="4dp">
+
+                            <TextView
+                                android:id="@+id/tvIvaLabel"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="IVA:"
+                                android:textSize="14sp"/>
+
+                            <TextView
+                                android:id="@+id/tvIvaAmount"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="16dp"
+                                android:text="MZN 0.00"
+                                android:textSize="14sp"
+                                android:textStyle="bold"/>
+                        </TableRow>
+
+                        <!-- Total a pagar -->
+                        <TableRow
+                            android:paddingVertical="4dp">
+
+                            <TextView
+                                android:id="@+id/tvTotalTaxLabel"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Total a pagar:"
+                                android:textSize="14sp"/>
+
+                            <TextView
+                                android:id="@+id/tvTotalTaxAmount"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="16dp"
+                                android:text="MZN 0.00"
+                                android:textSize="14sp"
+                                android:textStyle="bold"/>
+                        </TableRow>
+
+                    </TableLayout>
+
+
+
                 </LinearLayout>
 
                 <!-- Método de pagamento -->
@@ -791,37 +852,243 @@
                         android:layout_marginTop="12dp"
                         android:layout_gravity="center" />
 
-                    <!-- Payment Info Separator -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="8dp">
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        android:layout_weight="1"
+                        android:background="#CCC" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center"
-                        android:layout_marginTop="16dp"
-                        android:layout_marginBottom="8dp">
+                        android:text="Pagamento"
+                        android:textStyle="bold"
+                        android:textColor="#666"
+                        android:layout_marginHorizontal="8dp" />
 
-                        <View
-                            android:layout_width="0dp"
-                            android:layout_height="1dp"
-                            android:layout_weight="1"
-                            android:background="#CCC" />
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        android:layout_weight="1"
+                        android:background="#CCC" />
+                </LinearLayout>
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Pagamento"
-                            android:textStyle="bold"
-                            android:textColor="#666"
-                            android:layout_marginHorizontal="8dp" />
+                <!-- Taxa a pagar -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingVertical="4dp">
 
-                        <View
-                            android:layout_width="0dp"
-                            android:layout_height="1dp"
-                            android:layout_weight="1"
-                            android:background="#CCC" />
-                    </LinearLayout>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Custo do serviço:"
+                        android:textStyle="bold"
+                        android:textSize="14sp" />
 
-                    <!-- Taxa a pagar -->
+                    <TextView
+                        android:id="@+id/tvProofTaxa"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="MZN 0.00"
+                        android:textSize="14sp"
+                        android:gravity="end" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingVertical="4dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="IVA:"
+                        android:textStyle="bold"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:id="@+id/tvProoIva"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="MZN 0.00"
+                        android:textSize="14sp"
+                        android:gravity="end" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingVertical="4dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Total Pago:"
+                        android:textStyle="bold"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:id="@+id/tvProofTotalPago"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="MZN 0.00"
+                        android:textSize="14sp"
+                        android:gravity="end" />
+                </LinearLayout>
+
+
+
+                <!-- Método de pagamento -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingVertical="4dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Método de pagamento:"
+                        android:textStyle="bold"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:id="@+id/tvProofMetodo"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Mpesa"
+                        android:textSize="14sp"
+                        android:gravity="end" />
+                </LinearLayout>
+
+                <!-- Data do pagamento -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingVertical="4dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Data do pagamento:"
+                        android:textStyle="bold"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:id="@+id/tvProofData"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="01/01/2025"
+                        android:textSize="14sp"
+                        android:gravity="end" />
+                </LinearLayout>
+
+                <!-- Transaction ID -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingVertical="4dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="ID da transação:"
+                        android:textStyle="bold"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:id="@+id/tvProofTxnId"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="ABC123XYZ"
+                        android:textSize="14sp"
+                        android:gravity="end" />
+                </LinearLayout>
+
+                <!-- Transaction ID -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingVertical="4dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="ID da transação:"
+                        android:textStyle="bold"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:id="@+id/tvProofStatus"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:textColor="@color/green"
+                        android:text="Submetido para aprovação"
+                        android:textSize="14sp"
+                        android:gravity="end" />
+                </LinearLayout>
+
+                <!-- Details Separator -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="8dp">
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        android:layout_weight="1"
+                        android:background="#CCC" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Detalhes da reserva"
+                        android:textStyle="bold"
+                        android:textColor="#666"
+                        android:layout_marginHorizontal="8dp" />
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        android:layout_weight="1"
+                        android:background="#CCC" />
+                </LinearLayout>
+
+                <!-- Reservation Details -->
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp">
+
+                    <!-- Nome -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -831,21 +1098,21 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Taxa a pagar:"
+                            android:text="Nome do outdoor:"
                             android:textStyle="bold"
-                            android:textSize="14sp" />
+                            android:textSize="14sp"/>
 
                         <TextView
-                            android:id="@+id/tvProofTaxa"
+                            android:id="@+id/tvProofNome"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="MZN 0.00"
-                            android:textSize="14sp"
-                            android:gravity="end" />
+                            android:text="ABC"
+                            android:gravity="end"
+                            android:textSize="14sp"/>
                     </LinearLayout>
 
-                    <!-- Método de pagamento -->
+                    <!-- Endereço -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -855,21 +1122,21 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Método de pagamento:"
+                            android:text="Endereço:"
                             android:textStyle="bold"
-                            android:textSize="14sp" />
+                            android:textSize="14sp"/>
 
                         <TextView
-                            android:id="@+id/tvProofMetodo"
+                            android:id="@+id/tvProofEndereco"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Mpesa"
-                            android:textSize="14sp"
-                            android:gravity="end" />
+                            android:text="Av. Joaquim Chissano, 123"
+                            android:gravity="end"
+                            android:textSize="14sp"/>
                     </LinearLayout>
 
-                    <!-- Data do pagamento -->
+                    <!-- Frequência -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -879,21 +1146,21 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Data do pagamento:"
+                            android:text="Frequência:"
                             android:textStyle="bold"
-                            android:textSize="14sp" />
+                            android:textSize="14sp"/>
 
                         <TextView
-                            android:id="@+id/tvProofData"
+                            android:id="@+id/tvProofFrequencia"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="01/01/2025"
-                            android:textSize="14sp"
-                            android:gravity="end" />
+                            android:text="Mensal"
+                            android:gravity="end"
+                            android:textSize="14sp"/>
                     </LinearLayout>
 
-                    <!-- Transaction ID -->
+                    <!-- Latitude / Longitude -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -903,267 +1170,61 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="ID da transação:"
+                            android:text="Referência:"
                             android:textStyle="bold"
-                            android:textSize="14sp" />
+                            android:textSize="14sp"/>
 
                         <TextView
-                            android:id="@+id/tvProofTxnId"
+                            android:id="@+id/tvProofReference"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="ABC123XYZ"
-                            android:textSize="14sp"
-                            android:gravity="end" />
-                    </LinearLayout>
+                            android:gravity="end"
+                            android:textSize="14sp"/>
 
-                    <!-- Details Separator -->
+                    </LinearLayout>
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
-                        android:gravity="center"
-                        android:layout_marginTop="16dp"
-                        android:layout_marginBottom="8dp">
-
-                        <View
-                            android:layout_width="0dp"
-                            android:layout_height="1dp"
-                            android:layout_weight="1"
-                            android:background="#CCC" />
-
+                        android:paddingVertical="4dp">
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Detalhes da reserva"
+                            android:text="Data de início:"
                             android:textStyle="bold"
-                            android:textColor="#666"
-                            android:layout_marginHorizontal="8dp" />
+                            android:textSize="14sp"/>
 
-                        <View
+                        <TextView
+                            android:id="@+id/tvProofStartDate"
                             android:layout_width="0dp"
-                            android:layout_height="1dp"
+                            android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:background="#CCC" />
+                            android:gravity="end"
+                            android:textSize="14sp"/>
+
                     </LinearLayout>
-
-                    <!-- Reservation Details -->
-                    <LinearLayout
-                        android:orientation="vertical"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:paddingStart="8dp"
-                        android:paddingEnd="8dp">
-
-                        <!-- Nome -->
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:paddingVertical="4dp">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Nome:"
-                                android:textStyle="bold"
-                                android:textSize="14sp"/>
-
-                            <TextView
-                                android:id="@+id/tvProofNome"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:text="John Doe"
-                                android:gravity="end"
-                                android:textSize="14sp"/>
-                        </LinearLayout>
-
-                        <!-- Endereço -->
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:paddingVertical="4dp">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Endereço:"
-                                android:textStyle="bold"
-                                android:textSize="14sp"/>
-
-                            <TextView
-                                android:id="@+id/tvProofEndereco"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:text="Av. Joaquim Chissano, 123"
-                                android:gravity="end"
-                                android:textSize="14sp"/>
-                        </LinearLayout>
-
-                        <!-- Frequência -->
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:paddingVertical="4dp">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Frequência:"
-                                android:textStyle="bold"
-                                android:textSize="14sp"/>
-
-                            <TextView
-                                android:id="@+id/tvProofFrequencia"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:text="Mensal"
-                                android:gravity="end"
-                                android:textSize="14sp"/>
-                        </LinearLayout>
-
-                        <!-- Latitude / Longitude -->
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:paddingVertical="4dp">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Coordenadas:"
-                                android:textStyle="bold"
-                                android:textSize="14sp"/>
-
-                            <TextView
-                                android:id="@+id/tvProofCoords"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:text="-25.81, 32.52"
-                                android:gravity="end"
-                                android:textSize="14sp"/>
-                        </LinearLayout>
-                    </LinearLayout>
-
-                    <!-- Documents Separator -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
-                        android:gravity="center"
-                        android:layout_marginTop="16dp"
-                        android:layout_marginBottom="8dp">
-
-                        <View
-                            android:layout_width="0dp"
-                            android:layout_height="1dp"
-                            android:layout_weight="1"
-                            android:background="#CCC" />
-
+                        android:paddingVertical="4dp">
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Documentos"
+                            android:text="Data de fim:"
                             android:textStyle="bold"
-                            android:textColor="#666"
-                            android:layout_marginHorizontal="8dp" />
+                            android:textSize="14sp"/>
 
-                        <View
+                        <TextView
+                            android:id="@+id/tvProofEndDate"
                             android:layout_width="0dp"
-                            android:layout_height="1dp"
+                            android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:background="#CCC" />
+                            android:gravity="end"
+                            android:textSize="14sp"/>
                     </LinearLayout>
-
-                    <!-- Document Details -->
-                    <LinearLayout
-                        android:orientation="vertical"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:paddingStart="8dp"
-                        android:paddingEnd="8dp"
-                        android:paddingBottom="16dp">
-
-                        <!-- Tipo de Documento -->
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:paddingVertical="4dp">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Tipo:"
-                                android:textStyle="bold"
-                                android:textSize="14sp"/>
-
-                            <TextView
-                                android:id="@+id/tvProofDocTipo"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:text="CPF"
-                                android:gravity="end"
-                                android:textSize="14sp"/>
-                        </LinearLayout>
-
-                        <!-- Descrição do Documento -->
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:paddingVertical="4dp">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Descrição:"
-                                android:textStyle="bold"
-                                android:textSize="14sp"/>
-
-                            <TextView
-                                android:id="@+id/tvProofDocDesc"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:text="Passaporte"
-                                android:gravity="end"
-                                android:textSize="14sp"/>
-                        </LinearLayout>
-
-                        <!-- Formato do Documento -->
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:paddingVertical="4dp">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Formato:"
-                                android:textStyle="bold"
-                                android:textSize="14sp"/>
-
-                            <TextView
-                                android:id="@+id/tvProofDocFormat"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:text="PDF"
-                                android:gravity="end"
-                                android:textSize="14sp"/>
-                        </LinearLayout>
-                    </LinearLayout>
-
+                </LinearLayout>
                 </LinearLayout>
             </ScrollView>
 
@@ -1194,6 +1255,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Próximo"
+            android:layout_marginStart="16dp" />
+
+        <!-- New export‐to‐PDF button -->
+        <Button
+            android:id="@+id/btnExportPdf"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Exportar para PDF"
             android:layout_marginStart="16dp" />
     </LinearLayout>
 

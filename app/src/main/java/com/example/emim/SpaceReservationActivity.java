@@ -4,6 +4,8 @@ import android.Manifest;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Canvas;
+import android.graphics.pdf.PdfDocument;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
@@ -35,16 +37,23 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.security.SecureRandom;
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Random;
 
 public class SpaceReservationActivity extends AppCompatActivity implements OnMapReadyCallback {
     private ViewFlipper formSteps;
     private int stepIndex = 0;
 
-    private Button btnAnterior, btnProximo;
+    private Button btnAnterior, btnProximo, btnExportPdf;
 
     // Step 1 fields
     private TextInputEditText inputEndereco, inputLatitude, inputLongitude;
@@ -83,12 +92,31 @@ public class SpaceReservationActivity extends AppCompatActivity implements OnMap
     private static final int REQUEST_LOCATION_PERM = 1002;
 
     private FusedLocationProviderClient fusedLocationClient;
+    TextView tvIvaAmount;
+    TextView tvTotalTaxAmount;
+    EditText inputDataInicio;
+    EditText inputDataFim;
+    Spinner spinnerMetodoPagamento;
 
+    private TextView tvProofTaxa,tvTaxaAmount,
+            tvProofIva,
+            tvProofTotalPago,
+            tvProofMetodo,
+            tvProofData,
+            tvProofTxnId,
+            tvProofNome,
+            tvProofEndereco,
+            tvProofFrequencia,
+            tvProofReference,
+            tvProofStartDate,
+            tvProofEndDate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.space_reservation_layout);
+
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
         stepIcon1 = findViewById(R.id.stepIcon1);
         stepIcon2 = findViewById(R.id.stepIcon2);
@@ -106,6 +134,7 @@ public class SpaceReservationActivity extends AppCompatActivity implements OnMap
         formSteps = findViewById(R.id.formSteps);
         btnAnterior = findViewById(R.id.btnAnterior);
         btnProximo = findViewById(R.id.btnProximo);
+        btnExportPdf = findViewById(R.id.btnExportPdf);
 
         // Step 1 → Detalhes
         inputNome = findViewById(R.id.inputNome);
@@ -175,8 +204,8 @@ public class SpaceReservationActivity extends AppCompatActivity implements OnMap
         updateStepIndicator();
 
 
-        EditText inputDataInicio = findViewById(R.id.inputDataInicio);
-        EditText inputDataFim = findViewById(R.id.inputDataFim);
+         inputDataInicio = findViewById(R.id.inputDataInicio);
+         inputDataFim = findViewById(R.id.inputDataFim);
 
         View.OnClickListener dateClickListener = v -> {
             final EditText target = (EditText) v;
@@ -196,6 +225,32 @@ public class SpaceReservationActivity extends AppCompatActivity implements OnMap
         inputDataInicio.setOnClickListener(dateClickListener);
         inputDataFim.setOnClickListener(dateClickListener);
 
+        Calendar today = Calendar.getInstance();
+        Calendar nextMonth = (Calendar) today.clone();
+        nextMonth.add(Calendar.MONTH, 1);
+
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+        inputDataInicio.setText(sdf.format(today.getTime()));
+        inputDataFim.setText(sdf.format(nextMonth.getTime()));
+
+        tvProofTaxa = findViewById(R.id.tvProofTaxa);
+        tvProofIva = findViewById(R.id.tvProoIva);
+        tvProofTotalPago = findViewById(R.id.tvProofTotalPago);
+        tvProofMetodo = findViewById(R.id.tvProofMetodo);
+        tvProofData = findViewById(R.id.tvProofData);
+        tvProofTxnId = findViewById(R.id.tvProofTxnId);
+        tvProofNome = findViewById(R.id.tvProofNome);
+        tvProofEndereco = findViewById(R.id.tvProofEndereco);
+        tvProofFrequencia = findViewById(R.id.tvProofFrequencia);
+        tvProofReference = findViewById(R.id.tvProofReference);
+        tvProofStartDate = findViewById(R.id.tvProofStartDate);
+        tvProofEndDate = findViewById(R.id.tvProofEndDate);
+
+
+        labelEndereco = findViewById(R.id.labelEndereco);
+
+       // btnExportPdf.setOnClickListener(v -> exportProofToPdf());
+
 
         btnCarregarFoto.setOnClickListener(v -> {
             Intent pickIntent = new Intent(
@@ -213,12 +268,10 @@ public class SpaceReservationActivity extends AppCompatActivity implements OnMap
             startActivityForResult(intent, REQUEST_ATTACH_DOC);
         });
 
-        Spinner spinnerMetodoPagamento = findViewById(R.id.spinnerMetodoPagamento);
+         spinnerMetodoPagamento = findViewById(R.id.spinnerMetodoPagamento);
 
-// 2. Create the data source
         String[] paymentMethods = new String[]{"Mpesa", "Emola", "Banco"};
 
-// 3. Create an ArrayAdapter using a simple spinner layout
         ArrayAdapter<String> paymentAdapter = new ArrayAdapter<>(
                 this,
                 android.R.layout.simple_spinner_item,
@@ -228,11 +281,8 @@ public class SpaceReservationActivity extends AppCompatActivity implements OnMap
 // 4. Specify the layout to use when the list of choices appears
         paymentAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
-// 5. Apply the adapter to the spinner
         spinnerMetodoPagamento.setAdapter(paymentAdapter);
-
-
-        TextView tvTaxaAmount = findViewById(R.id.tvTaxaAmount);
+         tvTaxaAmount = findViewById(R.id.tvTaxaAmount);
 
         // generate random between min (inclusive) and max (inclusive)
         int min = 2000;
@@ -245,6 +295,18 @@ public class SpaceReservationActivity extends AppCompatActivity implements OnMap
                 .getNumberInstance(Locale.getDefault())
                 .format(randomTaxa);
         tvTaxaAmount.setText("MZN " + formatted);
+         tvIvaAmount      = findViewById(R.id.tvIvaAmount);
+         tvTotalTaxAmount = findViewById(R.id.tvTotalTaxAmount);
+
+        double iva   = randomTaxa * 0.16;
+        double total = randomTaxa + iva;
+
+        NumberFormat nf = NumberFormat.getNumberInstance(Locale.getDefault());
+        String ivaStr   = "MZN " + nf.format(iva);
+        String totalStr = "MZN " + nf.format(total);
+
+        tvIvaAmount.setText(ivaStr);
+        tvTotalTaxAmount.setText(totalStr);
 
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
@@ -269,9 +331,7 @@ public class SpaceReservationActivity extends AppCompatActivity implements OnMap
         labelEndereco.setText("Endereço: " + inputEndereco.getText());
         labelFrequencia.setText("Frequência: " + spinnerFrequency.getSelectedItem());
         labelDocTipo.setText("Tipo de Documento: " + spinnerTipoDocumento.getSelectedItem());
-//        labelDocDescricao.setText("Descrição: " + inputDescricaoDocumento.getEditText().getText());
 
-        // Center the map on the user’s coordinates (or show an error)
         updateMap();
     }
 
@@ -377,17 +437,15 @@ public class SpaceReservationActivity extends AppCompatActivity implements OnMap
                 icons[i].setImageResource(R.drawable.ic_baseline_check_24);
             }
         }
+        btnAnterior.setVisibility((stepIndex == 0 || stepIndex == lastIndex)
+                ? View.GONE : View.VISIBLE);
 
-        // ** Ajuste do texto e visibilidade dos botões na última tela **
-        if (stepIndex == lastIndex) {
-            // botão de “Concluir” e sem “Anterior”
-            btnProximo.setText("Concluir");
-            btnAnterior.setVisibility(View.GONE);
-        } else {
-            // botão “Próximo” e mostra “Anterior”
-            btnProximo.setText("Próximo");
-            btnAnterior.setVisibility(View.VISIBLE);
-        }
+        // change “Próximo” → “Concluir”
+        btnProximo.setText(stepIndex == lastIndex ? "Concluir" : "Próximo");
+
+        // only show Export button on the very last screen
+        btnExportPdf.setVisibility(stepIndex == lastIndex
+                ? View.VISIBLE : View.GONE);
     }
 
     @Override
@@ -407,13 +465,7 @@ public class SpaceReservationActivity extends AppCompatActivity implements OnMap
     private void fetchAndFillLocation() {
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
+
             return;
         }
         fusedLocationClient.getLastLocation()
@@ -432,4 +484,95 @@ public class SpaceReservationActivity extends AppCompatActivity implements OnMap
                             Toast.LENGTH_SHORT).show();
                 });
     }
+
+
+    private void populateProofStep() {
+        // copy from your Taxa table
+        tvProofTaxa.setText(tvTaxaAmount.getText());
+        tvProofIva.setText(tvIvaAmount.getText());
+        tvProofTotalPago.setText(tvTotalTaxAmount.getText());
+
+        // from spinner / datepickers / transaction ID field
+        tvProofMetodo.setText(spinnerMetodoPagamento.getSelectedItem().toString());
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+        tvProofData.setText(sdf.format(new Date()));
+        tvProofTxnId.setText(IdGenerator.randomAlphanumeric(10));
+
+        // from your summary labels
+        tvProofNome.setText(labelNome.getText().toString());
+        tvProofEndereco.setText(labelEndereco.getText().toString().replace("Endereço: ", ""));
+       // tvProofFrequencia.setText(labelExecutor.getText().toString().replace("Executor: ", ""));
+
+        tvProofReference.setText(IdGenerator.randomAlphanumeric(10));
+
+        // start/end dates
+        tvProofStartDate.setText(inputDataInicio.getText());
+        tvProofEndDate.setText(inputDataFim.getText());
+    }
+
+/*
+    private void exportProofToPdf() {
+        // 1) Measure & layout the view
+        int specW = View.MeasureSpec.makeMeasureSpec(
+                scrollProof.getWidth(), View.MeasureSpec.EXACTLY);
+        int specH = View.MeasureSpec.makeMeasureSpec(
+                0, View.MeasureSpec.UNSPECIFIED);
+        scrollProof.measure(specW, specH);
+        scrollProof.layout(0, 0,
+                scrollProof.getMeasuredWidth(),
+                scrollProof.getMeasuredHeight());
+
+        // 2) Create the PDF document
+        PdfDocument document = new PdfDocument();
+        PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(
+                scrollProof.getMeasuredWidth(),
+                scrollProof.getMeasuredHeight(),
+                1
+        ).create();
+        PdfDocument.Page page = document.startPage(pageInfo);
+        Canvas canvas = page.getCanvas();
+
+        // 3) Draw the view onto the PDF page
+        scrollProof.draw(canvas);
+        document.finishPage(page);
+
+        // 4) Write the PDF to a file
+        String filename = "comprovativo.pdf";
+        File file = new File(getExternalFilesDir(null), filename);
+        try (FileOutputStream out = new FileOutputStream(file)) {
+            document.writeTo(out);
+            Toast.makeText(this,
+                    "PDF salvo em:\n" + file.getAbsolutePath(),
+                    Toast.LENGTH_LONG).show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(this,
+                    "Erro ao gerar PDF: " + e.getMessage(),
+                    Toast.LENGTH_LONG).show();
+        } finally {
+            document.close();
+        }
+    }
+
+*/
+
+
 }
+
+class IdGenerator {
+    private static final String ALPHANUM = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+            + "abcdefghijklmnopqrstuvwxyz"
+            + "0123456789";
+    private static final SecureRandom rnd = new SecureRandom();
+
+    public static String randomAlphanumeric(int length) {
+        StringBuilder sb = new StringBuilder(length);
+        for (int i = 0; i < length; i++) {
+            int idx = rnd.nextInt(ALPHANUM.length());
+            sb.append(ALPHANUM.charAt(idx));
+        }
+        return sb.toString();
+    }
+}
+
+

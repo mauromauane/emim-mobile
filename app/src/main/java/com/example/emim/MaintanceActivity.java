@@ -4,7 +4,11 @@ import android.Manifest;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.graphics.pdf.PdfDocument;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
@@ -19,6 +23,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -34,6 +39,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -44,16 +50,28 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.gson.Gson;
+import com.google.maps.android.PolyUtil;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.security.SecureRandom;
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Random;
+import java.util.UUID;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -65,27 +83,22 @@ public class MaintanceActivity extends AppCompatActivity implements OnMapReadyCa
     private ViewFlipper formSteps;
     private int stepIndex = 0;
 
-    private Button btnAnterior, btnProximo;
+    private Button btnAnterior, btnProximo, btnExportPdf;
 
     // Step 1 fields
-    private TextInputEditText inputEndereco;
-    private TextInputLayout  inputLatitude, inputLongitude;
-    private Spinner spinnerExecutor;
+    private TextInputEditText inputEndereco, inputLocalManutencao;
+    private TextInputLayout inputLatitude, inputLongitude;
+    private Spinner spinnerExecutor, spinnerMetodoPagamento;
 
     private TextInputLayout inputNome;
 
     // Step 2 fields
     private Spinner spinnerTipoDocumento;
-    private TextInputLayout inputDescricaoDocumento, inputFormatoDocumento;
+    private TextInputLayout inputDescricaoDocumento, inputFormatoDocumento, tvLandingDate;
 
     // Confirmation labels (Step 3)
-    private TextView labelNome, labelEndereco, labelFrequencia,
-            labelLatitude, labelLongitude,
-            labelDocTipo, labelDocDescricao;
+    private TextView labelNome, labelEndereco, labelFrequencia, labelExecutor, tvTaxaAmount, tvTotalTaxAmount, tvIvaAmount;
 
-    // Step 4 fields
-    private Spinner spinnerPagamentoTipo;
-    private EditText inputDetalhesPagamento;
 
     // Map
     private MapView mapView;
@@ -98,8 +111,8 @@ public class MaintanceActivity extends AppCompatActivity implements OnMapReadyCa
     ImageButton btnCarregarFoto;
     ImageView ivPreview;
     ImageButton btnAnexarDoc;
-    TextView tvDocName;
-    private ImageView stepIcon1, stepIcon2, stepIcon3, stepIcon4;
+    TextView tvDocName, labelLocalManutencao;
+    private ImageView stepIcon1, stepIcon2, stepIcon3, stepIcon4, stepIcon5;
 
 
     private static final int REQUEST_LOCATION_PERM = 1002;
@@ -111,11 +124,26 @@ public class MaintanceActivity extends AppCompatActivity implements OnMapReadyCa
     private final List<Coordinate> coordinateList = new ArrayList<>();
     private Polyline currentPolyline;
     private Marker startMarker, endMarker;
-    private static final String ROADS_API_URL =
-            "https://roads.googleapis.com/v1/snapToRoads?interpolate=true&key=AIzaSyAMRW9dUZnP7IP8LDjVU7swa8-ixrrHa8I";
+    private View scrollProof;
 
     private final OkHttpClient httpClient = new OkHttpClient();
     private final Gson gson = new Gson();
+
+    TextInputEditText inputDataInicio;
+    TextInputEditText inputDataFim;
+
+    private TextView tvProofTaxa,
+            tvProofIva,
+            tvProofTotalPago,
+            tvProofMetodo,
+            tvProofData,
+            tvProofTxnId,
+            tvProofNome,
+            tvProofEndereco,
+            tvProofFrequencia,
+            tvProofReference,
+            tvProofStartDate,
+            tvProofEndDate;
 
 
     @Override
@@ -123,10 +151,14 @@ public class MaintanceActivity extends AppCompatActivity implements OnMapReadyCa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.maintanance_layout);
 
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+
         stepIcon1 = findViewById(R.id.stepIcon1);
         stepIcon2 = findViewById(R.id.stepIcon2);
         stepIcon3 = findViewById(R.id.stepIcon3);
         stepIcon4 = findViewById(R.id.stepIcon4);
+        stepIcon5 = findViewById(R.id.stepIcon5);
+        scrollProof = findViewById(R.id.scrollProof);
 
 
         btnCarregarFoto = findViewById(R.id.btnCarregarFoto);
@@ -139,12 +171,18 @@ public class MaintanceActivity extends AppCompatActivity implements OnMapReadyCa
         formSteps = findViewById(R.id.formSteps);
         btnAnterior = findViewById(R.id.btnAnterior);
         btnProximo = findViewById(R.id.btnProximo);
+        btnExportPdf = findViewById(R.id.btnExportPdf);
 
         // Step 1 → Detalhes
-        inputNome = findViewById(R.id.inputNome);
+        inputLocalManutencao = findViewById(R.id.etlocalManutencaol);
         inputEndereco = findViewById(R.id.inputEndereco);
         inputLatitude = findViewById(R.id.inputLatitude);
         inputLongitude = findViewById(R.id.inputLongitude);
+
+
+        inputDataInicio = findViewById(R.id.inputDataInicio);
+        inputDataFim = findViewById(R.id.inputDataFim);
+
         spinnerExecutor = findViewById(R.id.spinnerExecutor);
         ArrayAdapter<String> adapterFreq = new ArrayAdapter<>(
                 this, android.R.layout.simple_spinner_item,
@@ -164,10 +202,11 @@ public class MaintanceActivity extends AppCompatActivity implements OnMapReadyCa
         spinnerTipoDocumento.setAdapter(adapterDoc);
 
         // Step 3 → Confirmação labels
-        labelNome = findViewById(R.id.labelNome);
+
         labelEndereco = findViewById(R.id.labelEndereco);
         labelFrequencia = findViewById(R.id.labelFrequencia);
-        labelDocTipo = findViewById(R.id.labelTipoDocumento);
+        labelLocalManutencao = findViewById(R.id.labelLocalManutencao);
+        labelExecutor = findViewById(R.id.labelExecutor);
 
 
         // MapView setup
@@ -189,11 +228,13 @@ public class MaintanceActivity extends AppCompatActivity implements OnMapReadyCa
 
         // Navigate forwards
         btnProximo.setOnClickListener(v -> {
-            // Before showing the Confirmação screen, fill in the labels
+
             if (stepIndex == 1) {
                 preencherConfirmacao();
             }
-            // Advance if there are more steps
+            if (stepIndex == 3) {
+                populateProofStep();
+            }
             if (stepIndex < formSteps.getChildCount() - 1) {
                 stepIndex++;
                 formSteps.setDisplayedChild(stepIndex);
@@ -208,8 +249,8 @@ public class MaintanceActivity extends AppCompatActivity implements OnMapReadyCa
         updateStepIndicator();
 
 
-        EditText inputDataInicio = findViewById(R.id.inputDataInicio);
-        EditText inputDataFim = findViewById(R.id.inputDataFim);
+        inputDataInicio = findViewById(R.id.inputDataInicio);
+        inputDataFim = findViewById(R.id.inputDataFim);
 
         View.OnClickListener dateClickListener = v -> {
             final EditText target = (EditText) v;
@@ -246,43 +287,44 @@ public class MaintanceActivity extends AppCompatActivity implements OnMapReadyCa
             startActivityForResult(intent, REQUEST_ATTACH_DOC);
         });
 
-        Spinner spinnerMetodoPagamento = findViewById(R.id.spinnerMetodoPagamento);
+        spinnerMetodoPagamento = findViewById(R.id.spinnerMetodoPagamento);
 
-// 2. Create the data source
         String[] paymentMethods = new String[]{"Mpesa", "Emola", "Banco"};
-
-// 3. Create an ArrayAdapter using a simple spinner layout
         ArrayAdapter<String> paymentAdapter = new ArrayAdapter<>(
                 this,
                 android.R.layout.simple_spinner_item,
                 paymentMethods
         );
 
-// 4. Specify the layout to use when the list of choices appears
         paymentAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
-// 5. Apply the adapter to the spinner
         spinnerMetodoPagamento.setAdapter(paymentAdapter);
+        tvTaxaAmount = findViewById(R.id.tvTaxaAmount);
 
-
-        TextView tvTaxaAmount = findViewById(R.id.tvTaxaAmount);
-
-        // generate random between min (inclusive) and max (inclusive)
         int min = 2000;
         int max = 100000;
         Random rnd = new Random();
         int randomTaxa = rnd.nextInt(max - min + 1) + min;
 
-        // format with thousand separators, prefix currency code
         String formatted = NumberFormat
                 .getNumberInstance(Locale.getDefault())
                 .format(randomTaxa);
         tvTaxaAmount.setText("MZN " + formatted);
 
+        tvIvaAmount = findViewById(R.id.tvIvaAmount);
+        tvTotalTaxAmount = findViewById(R.id.tvTotalTaxAmount);
+
+        double iva = randomTaxa * 0.16;
+        double total = randomTaxa + iva;
+
+        NumberFormat nf = NumberFormat.getNumberInstance(Locale.getDefault());
+        String ivaStr = "MZN " + nf.format(iva);
+        String totalStr = "MZN " + nf.format(total);
+        tvIvaAmount.setText(ivaStr);
+        tvTotalTaxAmount.setText(totalStr);
+
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
-        // 1) Check for location permission
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(
@@ -294,15 +336,13 @@ public class MaintanceActivity extends AppCompatActivity implements OnMapReadyCa
             fetchAndFillLocation();
         }
 
-
         Button btnAdd = findViewById(R.id.btnAddCoordinate);
-        rvCoords      = findViewById(R.id.rvCoordinates);
+        rvCoords = findViewById(R.id.rvCoordinates);
 
         adapter = new CoordinatesAdapter(new ArrayList<>(), pos -> adapter.remove(pos));
         rvCoords.setLayoutManager(new LinearLayoutManager(this));
         rvCoords.setAdapter(adapter);
 
-        // clique no botão: adiciona à lista
         btnAdd.setOnClickListener(v -> {
             String lat = inputLatitude.getEditText().getText().toString().trim();
             String lon = inputLongitude.getEditText().getText().toString().trim();
@@ -318,34 +358,52 @@ public class MaintanceActivity extends AppCompatActivity implements OnMapReadyCa
             drawPolyline();
         });
 
+        Calendar today = Calendar.getInstance();
+        Calendar nextMonth = (Calendar) today.clone();
+        nextMonth.add(Calendar.MONTH, 1);
+
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+        inputDataInicio.setText(sdf.format(today.getTime()));
+        inputDataFim.setText(sdf.format(nextMonth.getTime()));
+
+        tvProofTaxa = findViewById(R.id.tvProofTaxa);
+        tvProofIva = findViewById(R.id.tvProoIva);
+        tvProofTotalPago = findViewById(R.id.tvProofTotalPago);
+        tvProofMetodo = findViewById(R.id.tvProofMetodo);
+        tvProofData = findViewById(R.id.tvProofData);
+        tvProofTxnId = findViewById(R.id.tvProofTxnId);
+        tvProofNome = findViewById(R.id.tvProofNome);
+        tvProofEndereco = findViewById(R.id.tvProofEndereco);
+        tvProofFrequencia = findViewById(R.id.tvProofFrequencia);
+        tvProofReference = findViewById(R.id.tvProofReference);
+        tvProofStartDate = findViewById(R.id.tvProofStartDate);
+        tvProofEndDate = findViewById(R.id.tvProofEndDate);
+
+
+        labelLocalManutencao = findViewById(R.id.labelLocalManutencao);
+        labelEndereco = findViewById(R.id.labelEndereco);
+        labelExecutor = findViewById(R.id.labelExecutor);
+
+        btnExportPdf.setOnClickListener(v -> exportProofToPdf());
+
     }
 
 
     private void preencherConfirmacao() {
-        labelNome.setText("Nome: " + inputNome.getEditText().getText());
-        labelEndereco.setText("Endereço: " + inputEndereco.getText());
-        labelFrequencia.setText("Executor: " + spinnerExecutor.getSelectedItem());
-        labelDocTipo.setText("Tipo de Documento: " + spinnerTipoDocumento.getSelectedItem());
-//        labelDocDescricao.setText("Descrição: " + inputDescricaoDocumento.getEditText().getText());
 
-        // Center the map on the user’s coordinates (or show an error)
-       // updateMap();
+        // Endereço
+        labelEndereco.setText(inputEndereco.getText());
+
+        // Local de Manutenção
+        labelLocalManutencao.setText(inputLocalManutencao.getText().toString()
+        );
+
+        // Executor
+        labelExecutor.setText(spinnerExecutor.getSelectedItem().toString()
+        );
+
     }
 
-    private void updateMap() {
-        if (googleMap != null) {
-            googleMap.clear();
-            try {
-                double lat = Double.parseDouble(inputLatitude.getEditText().getText().toString()),
-                        lng = Double.parseDouble(inputLongitude.getEditText().getText().toString());
-                LatLng location = new LatLng(lat, lng);
-                googleMap.addMarker(new MarkerOptions().position(location).title("Localização"));
-                googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 15f));
-            } catch (Exception e) {
-                Toast.makeText(this, "Coordenadas inválidas", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
 
     @Override
     public void onMapReady(GoogleMap map) {
@@ -419,7 +477,7 @@ public class MaintanceActivity extends AppCompatActivity implements OnMapReadyCa
 
     private void updateStepIndicator() {
         // array para facilitar
-        ImageView[] icons = {stepIcon1, stepIcon2, stepIcon3, stepIcon4};
+        ImageView[] icons = {stepIcon1, stepIcon2, stepIcon3, stepIcon4, stepIcon5};
         int lastIndex = icons.length - 1;
 
         for (int i = 0; i < icons.length; i++) {
@@ -436,16 +494,15 @@ public class MaintanceActivity extends AppCompatActivity implements OnMapReadyCa
             }
         }
 
-        // ** Ajuste do texto e visibilidade dos botões na última tela **
-        if (stepIndex == lastIndex) {
-            // botão de “Concluir” e sem “Anterior”
-            btnProximo.setText("Concluir");
-            btnAnterior.setVisibility(View.GONE);
-        } else {
-            // botão “Próximo” e mostra “Anterior”
-            btnProximo.setText("Próximo");
-            btnAnterior.setVisibility(View.VISIBLE);
-        }
+        btnAnterior.setVisibility((stepIndex == 0 || stepIndex == lastIndex)
+                ? View.GONE : View.VISIBLE);
+
+        // change “Próximo” → “Concluir”
+        btnProximo.setText(stepIndex == lastIndex ? "Concluir" : "Próximo");
+
+        // only show Export button on the very last screen
+        btnExportPdf.setVisibility(stepIndex == lastIndex
+                ? View.VISIBLE : View.GONE);
     }
 
     @Override
@@ -479,7 +536,7 @@ public class MaintanceActivity extends AppCompatActivity implements OnMapReadyCa
                     if (location != null) {
                         double lat = location.getLatitude();
                         double lng = location.getLongitude();
-                       inputLatitude.getEditText().setText(String.format(Locale.getDefault(), "%.6f", lat));
+                        inputLatitude.getEditText().setText(String.format(Locale.getDefault(), "%.6f", lat));
                         inputLongitude.getEditText().setText(String.format(Locale.getDefault(), "%.6f", lng));
                     } else {
                         Toast.makeText(this, "Não foi possível obter localização", Toast.LENGTH_SHORT).show();
@@ -492,124 +549,195 @@ public class MaintanceActivity extends AppCompatActivity implements OnMapReadyCa
     }
 
     private void drawPolyline() {
-        if (googleMap == null || coordinateList.isEmpty()) return;
-
-        // Remove any existing polyline and markers
-        if (currentPolyline != null) {
-            currentPolyline.remove();
-        }
-        if (startMarker != null) {
-            startMarker.remove();
-        }
-        if (endMarker != null) {
-            endMarker.remove();
-        }
-
-        // Build the “path” parameter for the Roads API
-        StringBuilder pathBuilder = new StringBuilder();
-        for (Coordinate c : coordinateList) {
-            if (pathBuilder.length() > 0) {
-                pathBuilder.append("|");
-            }
-            pathBuilder
-                    .append(c.latitude)
-                    .append(",")
-                    .append(c.longitude);
-        }
-
-        String encodedPath;
         try {
-            encodedPath = URLEncoder.encode(pathBuilder.toString(), "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            encodedPath = pathBuilder.toString();  // fallback, though unlikely
+            if (googleMap == null || coordinateList.size() < 2) return;
+
+            // Build origin, destination, and waypoints
+            LatLng origin = new LatLng(
+                    Double.parseDouble(coordinateList.get(0).latitude),
+                    Double.parseDouble(coordinateList.get(0).longitude)
+            );
+            LatLng destination = new LatLng(
+                    Double.parseDouble(coordinateList.get(coordinateList.size() - 1).latitude),
+                    Double.parseDouble(coordinateList.get(coordinateList.size() - 1).longitude)
+            );
+
+            StringBuilder waypoints = new StringBuilder();
+            // skip first & last
+            for (int i = 1; i < coordinateList.size() - 1; i++) {
+                Coordinate c = coordinateList.get(i);
+                if (waypoints.length() > 0) waypoints.append("|");
+                waypoints.append(c.latitude).append(",").append(c.longitude);
+            }
+
+            String API_KEY = "AIzaSyAMRW9dUZnP7IP8LDjVU7swa8-ixrrHa8I";
+            String url = "https://maps.googleapis.com/maps/api/directions/json"
+                    + "?origin=" + origin.latitude + "," + origin.longitude
+                    + "&destination=" + destination.latitude + "," + destination.longitude
+                    + (waypoints.length() > 0 ? "&waypoints=" + URLEncoder.encode(waypoints.toString(), "UTF-8") : "")
+                    + "&key=" + API_KEY;
+
+            Request request = new Request.Builder().url(url).build();
+            httpClient.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    runOnUiThread(() ->
+                            Toast.makeText(MaintanceActivity.this, "Directions failed: " + e.getMessage(), Toast.LENGTH_SHORT).show()
+                    );
+                }
+
+                @Override
+                public void onResponse(Call call, Response res) throws IOException {
+                    if (!res.isSuccessful()) {
+                        onFailure(call, new IOException("HTTP " + res.code()));
+                        return;
+                    }
+                    String body = res.body().string();
+                    // Parse “overview_polyline.points” via GSON or JSONObject
+                    try {
+                        JSONObject json = new JSONObject(body);
+                        JSONArray routes = json.getJSONArray("routes");
+                        if (routes.length() == 0) throw new JSONException("no routes");
+                        String polyline = routes
+                                .getJSONObject(0)
+                                .getJSONObject("overview_polyline")
+                                .getString("points");
+                        List<LatLng> pts = PolyUtil.decode(polyline);
+
+                        runOnUiThread(() -> {
+                            // clear old
+                            if (currentPolyline != null) currentPolyline.remove();
+                            if (startMarker != null) startMarker.remove();
+                            if (endMarker != null) endMarker.remove();
+
+                            // draw new
+                            currentPolyline = googleMap.addPolyline(new PolylineOptions()
+                                    .addAll(pts)
+                                    .width(8)
+                                    .color(Color.BLUE)
+                            );
+                            // markers
+                            startMarker = googleMap.addMarker(new MarkerOptions().position(origin).title("Início").icon(bitmapDescriptorFromVector(R.drawable.ic_baseline_my_location_24)));
+                            endMarker = googleMap.addMarker(new MarkerOptions().position(destination).title("Fim").icon(bitmapDescriptorFromVector(R.drawable.ic_baseline_my_location_24)));
+
+                            // zoom to bounds
+                            LatLngBounds.Builder b = new LatLngBounds.Builder();
+                            for (LatLng p : pts) b.include(p);
+                            googleMap.animateCamera(
+                                    CameraUpdateFactory.newLatLngBounds(b.build(), 100)
+                            );
+                        });
+                    } catch (JSONException e) {
+                        onFailure(call, new IOException("Parse error", e));
+                    }
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
-        // Prepare the Roads API request (interpolate=true smooths between points)
-        String url = ROADS_API_URL + "&path=" + encodedPath;
-        Request request = new Request.Builder()
-                .url(url)
-                .build();
+    }
 
-        httpClient.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                runOnUiThread(() ->
-                        Toast.makeText(MaintanceActivity.this,
-                                "Erro Roads API: " + e.getMessage(),
-                                Toast.LENGTH_SHORT).show()
-                );
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                if (!response.isSuccessful()) {
-                    onFailure(call, new IOException("HTTP " + response.code()));
-                    return;
-                }
-
-                // Parse the JSON into our model
-                String json = response.body().string();
-                SnapToRoadsResponse snapResp = gson.fromJson(json, SnapToRoadsResponse.class);
-                List<LatLng> snappedPoints = new ArrayList<>();
-                for (SnapToRoadsResponse.SnappedPoint sp : snapResp.snappedPoints) {
-                    snappedPoints.add(new LatLng(
-                            sp.location.latitude,
-                            sp.location.longitude
-                    ));
-                }
-
-                runOnUiThread(() -> {
-                    // 1) Draw the polyline
-                    currentPolyline = googleMap.addPolyline(new PolylineOptions()
-                            .addAll(snappedPoints)
-                            .width(6)
-                            .color(Color.BLUE)
-                    );
-
-                    // 2) Place start & end markers
-                    LatLng start = snappedPoints.get(0);
-                    LatLng end   = snappedPoints.get(snappedPoints.size() - 1);
-                    startMarker = googleMap.addMarker(new MarkerOptions()
-                            .position(start)
-                            .title("Início")
-                            .icon(BitmapDescriptorFactory.defaultMarker(
-                                    BitmapDescriptorFactory.HUE_GREEN)));
-                    endMarker = googleMap.addMarker(new MarkerOptions()
-                            .position(end)
-                            .title("Fim")
-                            .icon(BitmapDescriptorFactory.defaultMarker(
-                                    BitmapDescriptorFactory.HUE_RED)));
-
-                    // 3) Build bounds & animate camera
-                    LatLngBounds.Builder boundsBuilder = new LatLngBounds.Builder();
-                    for (LatLng pt : snappedPoints) {
-                        boundsBuilder.include(pt);
-                    }
-                    LatLngBounds bounds = boundsBuilder.build();
-
-                    googleMap.setOnMapLoadedCallback(() -> {
-                        googleMap.animateCamera(
-                                CameraUpdateFactory.newLatLngBounds(bounds, /* padding */100)
-                        );
-                    });
-                });
-            }
-        });
+    private BitmapDescriptor bitmapDescriptorFromVector(@DrawableRes int vectorResId) {
+        Drawable vectorDrawable = ContextCompat.getDrawable(this, vectorResId);
+        vectorDrawable.setBounds(0, 0,
+                vectorDrawable.getIntrinsicWidth(),
+                vectorDrawable.getIntrinsicHeight()
+        );
+        Bitmap bitmap = Bitmap.createBitmap(
+                vectorDrawable.getIntrinsicWidth(),
+                vectorDrawable.getIntrinsicHeight(),
+                Bitmap.Config.ARGB_8888
+        );
+        Canvas canvas = new Canvas(bitmap);
+        vectorDrawable.draw(canvas);
+        return BitmapDescriptorFactory.fromBitmap(bitmap);
     }
 
 
-}
+    private void populateProofStep() {
+        // copy from your Taxa table
+        tvProofTaxa.setText(tvTaxaAmount.getText());
+        tvProofIva.setText(tvIvaAmount.getText());
+        tvProofTotalPago.setText(tvTotalTaxAmount.getText());
 
+        // from spinner / datepickers / transaction ID field
+        tvProofMetodo.setText(spinnerMetodoPagamento.getSelectedItem().toString());
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+        tvProofData.setText(sdf.format(new Date()));
+        tvProofTxnId.setText(IdGenerator.randomAlphanumeric(10));
 
-class SnapToRoadsResponse {
-    List<SnappedPoint> snappedPoints;
+        // from your summary labels
+        tvProofNome.setText(labelLocalManutencao.getText().toString().replace("Local de manutenção: ", ""));
+        tvProofEndereco.setText(labelEndereco.getText().toString().replace("Endereço: ", ""));
+        tvProofFrequencia.setText(labelExecutor.getText().toString().replace("Executor: ", ""));
 
-    static class SnappedPoint {
-        Location location;
-        // placeId, originalIndex if you need them
+        tvProofReference.setText(IdGenerator.randomAlphanumeric(10));
+
+        // start/end dates
+        tvProofStartDate.setText(inputDataInicio.getText());
+        tvProofEndDate.setText(inputDataFim.getText());
     }
-    static class Location {
-        double latitude;
-        double longitude;
+
+
+    private void exportProofToPdf() {
+        // 1) Measure & layout the view
+        int specW = View.MeasureSpec.makeMeasureSpec(
+                scrollProof.getWidth(), View.MeasureSpec.EXACTLY);
+        int specH = View.MeasureSpec.makeMeasureSpec(
+                0, View.MeasureSpec.UNSPECIFIED);
+        scrollProof.measure(specW, specH);
+        scrollProof.layout(0, 0,
+                scrollProof.getMeasuredWidth(),
+                scrollProof.getMeasuredHeight());
+
+        // 2) Create the PDF document
+        PdfDocument document = new PdfDocument();
+        PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(
+                scrollProof.getMeasuredWidth(),
+                scrollProof.getMeasuredHeight(),
+                1
+        ).create();
+        PdfDocument.Page page = document.startPage(pageInfo);
+        Canvas canvas = page.getCanvas();
+
+        // 3) Draw the view onto the PDF page
+        scrollProof.draw(canvas);
+        document.finishPage(page);
+
+        // 4) Write the PDF to a file
+        String filename = "comprovativo.pdf";
+        File file = new File(getExternalFilesDir(null), filename);
+        try (FileOutputStream out = new FileOutputStream(file)) {
+            document.writeTo(out);
+            Toast.makeText(this,
+                    "PDF salvo em:\n" + file.getAbsolutePath(),
+                    Toast.LENGTH_LONG).show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(this,
+                    "Erro ao gerar PDF: " + e.getMessage(),
+                    Toast.LENGTH_LONG).show();
+        } finally {
+            document.close();
+        }
     }
 }
+
+
+ class IdGenerator_ {
+     private static final String ALPHANUM = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+             + "abcdefghijklmnopqrstuvwxyz"
+             + "0123456789";
+     private static final SecureRandom rnd = new SecureRandom();
+
+     public static String randomAlphanumeric(int length) {
+         StringBuilder sb = new StringBuilder(length);
+         for (int i = 0; i < length; i++) {
+             int idx = rnd.nextInt(ALPHANUM.length());
+             sb.append(ALPHANUM.charAt(idx));
+         }
+         return sb.toString();
+     }
+ }
+

@@ -194,7 +194,7 @@
                 app:boxStrokeWidthFocused="2dp">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etLoginEmail"
+                    android:id="@+id/etlocalManutencaol"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:inputType="text"
@@ -563,25 +563,6 @@
 
 
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/inputDescricaoDocumento"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:hint="Descrição do documento"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
-                app:boxBackgroundMode="outline"
-                app:boxStrokeColor="@color/primary_500"
-                app:boxStrokeWidth="1dp"
-                app:boxStrokeWidthFocused="2dp">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etDescricaoDcoument"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:inputType="text"
-                    android:background="@null"/>
-            </com.google.android.material.textfield.TextInputLayout>
-
             <!-- ⇩ New attach-document row ⇩ -->
             <LinearLayout
                 android:layout_width="match_parent"
@@ -655,26 +636,115 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center"
+                    android:orientation="vertical"
                     android:layout_marginBottom="16dp">
 
-                    <TextView
-                        android:id="@+id/tvTaxaLabel"
-                        android:layout_width="wrap_content"
+                    <TableLayout
+                        xmlns:android="http://schemas.android.com/apk/res/android"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Taxa a pagar:"
-                        android:textSize="14sp"/>
+                        android:stretchColumns="1"
+                        android:layout_marginBottom="1dp">
 
-                    <TextView
-                        android:id="@+id/tvTaxaAmount"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="MZN 0.00"
-                        android:textSize="14sp"
-                        android:textStyle="bold"/>
+                        <!-- Valor a pagar -->
+                        <TableRow
+                            android:paddingVertical="4dp">
+
+                            <TextView
+                                android:id="@+id/tvTaxaLabel"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Valor a pagar:"
+                                android:textSize="14sp"/>
+
+                            <TextView
+                                android:id="@+id/tvTaxaAmount"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="16dp"
+                                android:text="MZN 0.00"
+                                android:textSize="14sp"
+                                android:textStyle="bold"/>
+                        </TableRow>
+
+                        <!-- IVA -->
+                        <TableRow
+                            android:paddingVertical="4dp">
+
+                            <TextView
+                                android:id="@+id/tvIvaLabel"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="IVA:"
+                                android:textSize="14sp"/>
+
+                            <TextView
+                                android:id="@+id/tvIvaAmount"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="16dp"
+                                android:text="MZN 0.00"
+                                android:textSize="14sp"
+                                android:textStyle="bold"/>
+                        </TableRow>
+
+                        <!-- Total a pagar -->
+                        <TableRow
+                            android:paddingVertical="4dp">
+
+                            <TextView
+                                android:id="@+id/tvTotalTaxLabel"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Total a pagar:"
+                                android:textSize="14sp"/>
+
+                            <TextView
+                                android:id="@+id/tvTotalTaxAmount"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="16dp"
+                                android:text="MZN 0.00"
+                                android:textSize="14sp"
+                                android:textStyle="bold"/>
+                        </TableRow>
+
+                    </TableLayout>
+
+
+
                 </LinearLayout>
 
+
+                <!-- Separator “Taxas” -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="16dp">
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        android:layout_weight="1"
+                        android:background="@color/divider"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Pagamentos"
+                        android:textColor="@color/gray"
+                        android:textStyle="bold"
+                        android:layout_marginHorizontal="8dp"/>
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        android:layout_weight="1"
+                        android:background="@color/divider"/>
+                </LinearLayout>
                 <!-- Método de pagamento -->
                 <TextView
                     android:layout_width="wrap_content"
@@ -731,11 +801,11 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Nome:"
+                        android:text="Local da manutenção:"
                         android:textStyle="bold"/>
 
                     <TextView
-                        android:id="@+id/labelNome"
+                        android:id="@+id/labelLocalManutencao"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -773,33 +843,11 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Frequência:"
+                        android:text="Executor:"
                         android:textStyle="bold"/>
 
                     <TextView
-                        android:id="@+id/labelFrequencia"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginStart="8dp"/>
-                </LinearLayout>
-
-
-                <!-- Tipo de Documento -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:paddingVertical="4dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Tipo de Documento:"
-                        android:textStyle="bold"/>
-
-                    <TextView
-                        android:id="@+id/labelTipoDocumento"
+                        android:id="@+id/labelExecutor"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -808,26 +856,6 @@
 
 
 
-                <!-- Formato do Documento -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:paddingVertical="4dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Documento:"
-                        android:textStyle="bold"/>
-
-                    <TextView
-                        android:id="@+id/labelFormatoDocumento"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginStart="8dp"/>
-                </LinearLayout>
 
                 <!-- Mapa -->
                 <com.google.android.gms.maps.MapView
@@ -917,7 +945,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Taxa a pagar:"
+                            android:text="Custo do serviço:"
                             android:textStyle="bold"
                             android:textSize="14sp" />
 
@@ -930,6 +958,54 @@
                             android:textSize="14sp"
                             android:gravity="end" />
                     </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingVertical="4dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="IVA:"
+                            android:textStyle="bold"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/tvProoIva"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="MZN 0.00"
+                            android:textSize="14sp"
+                            android:gravity="end" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingVertical="4dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="tOTAL pAGO:"
+                            android:textStyle="bold"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/tvProofTotalPago"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="MZN 0.00"
+                            android:textSize="14sp"
+                            android:gravity="end" />
+                    </LinearLayout>
+
+
 
                     <!-- Método de pagamento -->
                     <LinearLayout
@@ -1003,6 +1079,31 @@
                             android:gravity="end" />
                     </LinearLayout>
 
+                    <!-- Transaction ID -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingVertical="4dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="ID da transação:"
+                            android:textStyle="bold"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/tvProofStatus"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:textColor="@color/green"
+                            android:text="Submetido para aprovação"
+                            android:textSize="14sp"
+                            android:gravity="end" />
+                    </LinearLayout>
+
                     <!-- Details Separator -->
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -1051,7 +1152,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Nome:"
+                                android:text="Local de manutenção:"
                                 android:textStyle="bold"
                                 android:textSize="14sp"/>
 
@@ -1060,7 +1161,7 @@
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:text="John Doe"
+                                android:text="ABC"
                                 android:gravity="end"
                                 android:textSize="14sp"/>
                         </LinearLayout>
@@ -1075,7 +1176,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Endereço:"
+                                android:text="Motivo da manutenção:"
                                 android:textStyle="bold"
                                 android:textSize="14sp"/>
 
@@ -1123,132 +1224,62 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Coordenadas:"
+                                android:text="Referência:"
                                 android:textStyle="bold"
                                 android:textSize="14sp"/>
 
                             <TextView
-                                android:id="@+id/tvProofCoords"
+                                android:id="@+id/tvProofReference"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:text="-25.81, 32.52"
                                 android:gravity="end"
                                 android:textSize="14sp"/>
+
                         </LinearLayout>
-                    </LinearLayout>
-
-                    <!-- Documents Separator -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center"
-                        android:layout_marginTop="16dp"
-                        android:layout_marginBottom="8dp">
-
-                        <View
-                            android:layout_width="0dp"
-                            android:layout_height="1dp"
-                            android:layout_weight="1"
-                            android:background="#CCC" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Documentos"
-                            android:textStyle="bold"
-                            android:textColor="#666"
-                            android:layout_marginHorizontal="8dp" />
-
-                        <View
-                            android:layout_width="0dp"
-                            android:layout_height="1dp"
-                            android:layout_weight="1"
-                            android:background="#CCC" />
-                    </LinearLayout>
-
-                    <!-- Document Details -->
-                    <LinearLayout
-                        android:orientation="vertical"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:paddingStart="8dp"
-                        android:paddingEnd="8dp"
-                        android:paddingBottom="16dp">
-
-                        <!-- Tipo de Documento -->
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
                             android:paddingVertical="4dp">
-
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Tipo:"
+                                android:text="Data de início:"
                                 android:textStyle="bold"
                                 android:textSize="14sp"/>
 
                             <TextView
-                                android:id="@+id/tvProofDocTipo"
+                                android:id="@+id/tvProofStartDate"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:text="CPF"
                                 android:gravity="end"
                                 android:textSize="14sp"/>
-                        </LinearLayout>
 
-                        <!-- Descrição do Documento -->
+                        </LinearLayout>
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
                             android:paddingVertical="4dp">
-
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Descrição:"
+                                android:text="Data de fim:"
                                 android:textStyle="bold"
                                 android:textSize="14sp"/>
 
                             <TextView
-                                android:id="@+id/tvProofDocDesc"
+                                android:id="@+id/tvProofEndDate"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:text="Passaporte"
-                                android:gravity="end"
-                                android:textSize="14sp"/>
-                        </LinearLayout>
-
-                        <!-- Formato do Documento -->
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:paddingVertical="4dp">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Formato:"
-                                android:textStyle="bold"
-                                android:textSize="14sp"/>
-
-                            <TextView
-                                android:id="@+id/tvProofDocFormat"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:text="PDF"
                                 android:gravity="end"
                                 android:textSize="14sp"/>
                         </LinearLayout>
                     </LinearLayout>
+
 
                 </LinearLayout>
             </ScrollView>
@@ -1280,6 +1311,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Próximo"
+            android:layout_marginStart="16dp" />
+
+        <!-- New export‐to‐PDF button -->
+        <Button
+            android:id="@+id/btnExportPdf"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Exportar para PDF"
             android:layout_marginStart="16dp" />
     </LinearLayout>
 

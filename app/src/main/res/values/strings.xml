@@ -3,6 +3,7 @@
     <string name="title_home">Pagamentos</string>
     <string name="title_dashboard">Serviços</string>
     <string name="title_notifications">Notificações</string>
+    <string name="title_requests">Requisições</string>
     <string name="title_activity_space_reservation">SpaceReservationActivity</string>
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">First Fragment</string>

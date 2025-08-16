@@ -9,6 +9,7 @@ import com.example.emim.model.CardItem;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -65,6 +66,27 @@ public class MainActivity extends AppCompatActivity {
 
 
         recyclerView.setAdapter(adapter);
+
+/*
+        BottomNavigationView nav = findViewById(R.id.bottom_navigation);
+
+        nav.setOnNavigationItemSelectedListener(item -> {
+            Fragment sel;
+            switch (item.getItemId()) {
+                case R.id.navigation_notifications:
+                    sel = new SecondFragment();
+                    break;
+                case R.id.navigation_dashboard:
+                default:
+                    sel = new FirstFragment();
+                    break;
+            }
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.navigation_home, sel)
+                    .commit();
+            return true;
+        }); */
     }
 
 }
